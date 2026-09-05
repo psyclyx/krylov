@@ -1,0 +1,7 @@
+.direnv/
+result
+result-*
+.gradle/
+.idea/
+build/
+local.properties
