@@ -5,3 +5,5 @@ result-*
 .idea/
 build/
 local.properties
+*.keystore
+*.jks

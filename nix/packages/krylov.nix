@@ -10,6 +10,9 @@ stdenvNoCC.mkDerivation {
     runHook preBuild
     export HOME="$TMPDIR"
     export JAVA_HOME=${jdk17}
+    keytool -genkeypair -keystore development.keystore -storepass android -keypass android \
+      -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+      -dname 'CN=Android Debug,O=Android,C=US' >/dev/null 2>&1
     sdk=${krylov-sdk}/libexec/android-sdk
     tools="$sdk/build-tools/37.0.0"
     android="$sdk/platforms/android-35/android.jar"
@@ -29,20 +32,28 @@ stdenvNoCC.mkDerivation {
     cp dex/*.dex apk/
     (cd apk; zip -q -r ../unsigned.apk .)
     "$tools/zipalign" -f -p 4 unsigned.apk aligned.apk
-    keytool -genkeypair -keystore debug.keystore -storepass android -keypass android \
-      -alias androiddebugkey -dname 'CN=Android Debug,O=Android,C=US' \
-      -keyalg RSA -keysize 2048 -validity 10000
-    "$tools/apksigner" sign --ks debug.keystore --ks-pass pass:android \
+    "$tools/apksigner" sign --ks development.keystore --ks-pass pass:android \
       --out krylov.apk aligned.apk
     "$tools/apksigner" verify krylov.apk
+    mkdir -p test-dex test-apk
+    kotlinc src/test/android/*.kt -classpath "$android:classes.jar" \
+      -jvm-target 1.8 -d test-classes.jar
+    "$tools/d8" --lib "$android" --classpath classes.jar --min-api 26 --output test-dex test-classes.jar
+    "$tools/aapt2" link -I "$android" --manifest src/test/android/AndroidManifest.xml -o tests-unsigned.apk
+    cp test-dex/*.dex test-apk/
+    (cd test-apk; zip -q -r ../tests-unsigned.apk .)
+    "$tools/zipalign" -f -p 4 tests-unsigned.apk tests-aligned.apk
+    "$tools/apksigner" sign --ks development.keystore --ks-pass pass:android \
+      --out krylov-tests.apk tests-aligned.apk
+    "$tools/apksigner" verify krylov-tests.apk
     runHook postBuild
   '';
   installPhase = ''
     mkdir -p $out
-    cp krylov.apk $out/
+    cp krylov.apk krylov-tests.apk $out/
   '';
   meta = {
-    description = "Krylov Kotlin and Android NDK starter app";
+    description = "Native Android Wikipedia reader with offline caching and revision-aware marks";
     platforms = [ "x86_64-linux" ];
   };
 }
