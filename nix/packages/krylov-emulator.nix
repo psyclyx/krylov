@@ -1,7 +1,19 @@
-{ writeShellApplication, coreutils, gnugrep, jdk17, krylov-sdk, krylov }:
+{
+  writeShellApplication,
+  coreutils,
+  gnugrep,
+  jdk17,
+  krylov-sdk,
+  krylov,
+}:
 writeShellApplication {
   name = "krylov-emulator";
-  runtimeInputs = [ coreutils gnugrep jdk17 krylov-sdk ];
+  runtimeInputs = [
+    coreutils
+    gnugrep
+    jdk17
+    krylov-sdk
+  ];
   text = ''
     export JAVA_HOME=${jdk17}
     export ANDROID_HOME=${krylov-sdk}/libexec/android-sdk

@@ -1,9 +1,27 @@
-{ lib, stdenvNoCC, kotlin, jdk17, cmake, ninja, zip, krylov-sdk }:
+{
+  lib,
+  stdenvNoCC,
+  kotlin,
+  jdk17,
+  cmake,
+  ninja,
+  zip,
+  krylov-sdk,
+}:
 stdenvNoCC.mkDerivation {
   pname = "krylov";
   version = "0.1.0";
-  src = lib.fileset.toSource { root = ../..; fileset = ../../src; };
-  nativeBuildInputs = [ kotlin jdk17 cmake ninja zip ];
+  src = lib.fileset.toSource {
+    root = ../..;
+    fileset = ../../src;
+  };
+  nativeBuildInputs = [
+    kotlin
+    jdk17
+    cmake
+    ninja
+    zip
+  ];
   dontConfigure = true;
   dontFixup = true;
   buildPhase = ''

@@ -147,6 +147,7 @@ object ArticleBlocks {
         flush()
         return result
     }
+
 }
 
 object QueryTerms {
