@@ -9,13 +9,15 @@ let
   overlay = final: prev: mkPackages prev.lib final;
 in
 {
-  nixpkgs ? npins.nixpkgs,
+  sources ? npins,
+  nixpkgs ? sources.nixpkgs,
   pkgs ? import nixpkgs {
     config = {
       allowUnfree = true;
       android_sdk.accept_license = true;
     };
   },
+  ...
 }:
 let
   finalPkgs = pkgs.extend overlay;
